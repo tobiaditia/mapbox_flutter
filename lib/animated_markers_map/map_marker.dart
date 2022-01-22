@@ -14,7 +14,7 @@ class MapMarker {
   final LatLng location;
 }
 
-final _location = [
+final List<LatLng> locations = [
   LatLng(-8.084429972199272, 112.17616549859079),
   LatLng(-8.091414087602997, 112.1657724102353),
   LatLng(-8.097868769661954, 112.1762536814),
@@ -34,50 +34,50 @@ final mapMarkers = [
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Bungkarno Graves',
       address: 'Blitar',
-      location: _location[0]),
+      location: locations[0]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Sumber Udel Waterpark',
       address: 'Blitar',
-      location: _location[1]),
+      location: locations[1]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Istana Gebang Blitar',
       address: 'Blitar',
-      location: _location[2]),
+      location: locations[2]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Kebon Rojo Park',
       address: 'Blitar',
-      location: _location[3]),
+      location: locations[3]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Petik Belimbing Karangsari',
       address: 'Blitar',
-      location: _location[4]),
+      location: locations[4]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Taman Pecut',
       address: 'Blitar',
-      location: _location[5]),
+      location: locations[5]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Monumen PETA',
       address: 'Blitar',
-      location: _location[6]),
+      location: locations[6]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Gong Perdamaian Dunia',
       address: 'Blitar',
-      location: _location[7]),
+      location: locations[7]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Masjid Agung',
       address: 'Blitar',
-      location: _location[8]),
+      location: locations[8]),
   MapMarker(
       image: '${_path}Makam_Soekarno.jpg',
       title: 'Alun-Alun Kota Blitar',
       address: 'Blitar',
-      location: _location[9])
+      location: locations[9])
 ];

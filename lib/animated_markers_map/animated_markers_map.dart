@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/animated_markers_map/map_marker.dart';
+import 'package:http/http.dart' as http;
+import 'package:mapbox_flutter/class/polyline_class.dart';
 
 const MAPBOX_ACCESS_TOKEN =
     'pk.eyJ1IjoidG9iaWFkaXRpYSIsImEiOiJja2xqN2N2Znkxa29kMndvaTc0d2RxY3RwIn0.yxbbgWslbanpHwditeyYJw';
@@ -22,6 +26,73 @@ class _AnimatedMarkersMapState extends State<AnimatedMarkersMap>
   final _pageController = PageController();
   int _selectedIndex = 0;
   late final AnimationController _animationController;
+
+  final List<LatLng> locations2 = [
+    LatLng(-8.091414087602997, 112.1657724102353),
+    LatLng(-8.093711, 112.177166),
+    LatLng(-8.095827, 112.172232),
+    LatLng(-8.096097, 112.172007),
+    LatLng(-8.099454, 112.171355),
+    LatLng(-8.099311, 112.169253),
+    LatLng(-8.09931, 112.168792),
+    LatLng(-8.109279, 112.166942),
+    LatLng(-8.109469, 112.166622),
+    LatLng(-8.115314, 112.163432),
+    LatLng(-8.114633, 112.161564),
+    LatLng(-8.114177, 112.159577),
+    LatLng(-8.11413, 112.158382),
+    LatLng(-8.114768, 112.156945),
+    LatLng(-8.112826, 112.157844),
+    LatLng(-8.112711, 112.157487),
+    LatLng(-8.112557814571403, 112.1575374985911),
+  ];
+
+  Future<List> _polyLines() async {
+    var res;
+    var polyline;
+    var data;
+
+    try {
+      String url =
+          'https://api.mapbox.com/directions/v5/mapbox/walking/112.17719081208423,-8.093765745109062;112.1575374985911,-8.112557814571403?access_token=pk.eyJ1IjoidG9iaWFkaXRpYSIsImEiOiJja2xqN2N2Znkxa29kMndvaTc0d2RxY3RwIn0.yxbbgWslbanpHwditeyYJw';
+      res = await http.get(Uri.parse(url));
+      polyline = jsonToPolyLine(res.body);
+      data = PolylineClass.fromJson(jsonDecode(res.body));
+      print('o');
+      print(data);
+      print('o');
+    } catch (e) {
+      print("FAILED!!");
+      print(e);
+    }
+
+    return [1];
+  }
+
+  Polyline jsonToPolyLine(String jsonString) {
+    Polyline polyline;
+    List<LatLng> geometryList = [];
+    List<LatLng> intersectionList = [];
+    LatLng thisll;
+    var myJson = json.decode(jsonString);
+
+    List<dynamic> routes = myJson['routes'];
+    List<dynamic> legs = routes[0]['legs'];
+    List<dynamic> steps = legs[0]['steps'];
+
+    steps.forEach((el) {
+      el['geometry']['coordinates'].forEach((arrEl) {
+        thisll = new LatLng(arrEl[1], arrEl[0]);
+        geometryList.add(thisll);
+      });
+    });
+    polyline = new Polyline(
+        points: geometryList,
+        color: Colors.indigoAccent,
+        strokeWidth: 3.0,
+        isDotted: true);
+    return polyline;
+  }
 
   List<Marker> _buildMarkers() {
     final _markerList = <Marker>[];
@@ -54,6 +125,7 @@ class _AnimatedMarkersMapState extends State<AnimatedMarkersMap>
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animationController.repeat();
+    _polyLines();
     super.initState();
   }
 
@@ -80,7 +152,7 @@ class _AnimatedMarkersMapState extends State<AnimatedMarkersMap>
         children: [
           FlutterMap(
             options: MapOptions(minZoom: 5, zoom: 13, center: _myLocation),
-            nonRotatedLayers: [
+            layers: [
               TileLayerOptions(
                   urlTemplate:
                       'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
@@ -97,7 +169,11 @@ class _AnimatedMarkersMapState extends State<AnimatedMarkersMap>
                     builder: (_) {
                       return _MyLocationMarker(_animationController);
                     })
-              ])
+              ]),
+              PolylineLayerOptions(polylines: [
+                Polyline(
+                    points: locations2, strokeWidth: 4.0, color: Colors.blue)
+              ]),
             ],
           ),
           Positioned(
