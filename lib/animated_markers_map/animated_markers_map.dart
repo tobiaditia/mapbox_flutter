@@ -1,11 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/animated_markers_map/map_marker.dart';
-import 'package:http/http.dart' as http;
-import 'package:mapbox_flutter/class/polyline_class.dart';
 
 const MAPBOX_ACCESS_TOKEN =
     'pk.eyJ1IjoidG9iaWFkaXRpYSIsImEiOiJja2xqN2N2Znkxa29kMndvaTc0d2RxY3RwIn0.yxbbgWslbanpHwditeyYJw';
@@ -47,53 +43,6 @@ class _AnimatedMarkersMapState extends State<AnimatedMarkersMap>
     LatLng(-8.112557814571403, 112.1575374985911),
   ];
 
-  Future<List> _polyLines() async {
-    var res;
-    var polyline;
-    var data;
-
-    try {
-      String url =
-          'https://api.mapbox.com/directions/v5/mapbox/walking/112.17719081208423,-8.093765745109062;112.1575374985911,-8.112557814571403?access_token=pk.eyJ1IjoidG9iaWFkaXRpYSIsImEiOiJja2xqN2N2Znkxa29kMndvaTc0d2RxY3RwIn0.yxbbgWslbanpHwditeyYJw';
-      res = await http.get(Uri.parse(url));
-      polyline = jsonToPolyLine(res.body);
-      data = PolylineClass.fromJson(jsonDecode(res.body));
-      print('o');
-      print(data);
-      print('o');
-    } catch (e) {
-      print("FAILED!!");
-      print(e);
-    }
-
-    return [1];
-  }
-
-  Polyline jsonToPolyLine(String jsonString) {
-    Polyline polyline;
-    List<LatLng> geometryList = [];
-    List<LatLng> intersectionList = [];
-    LatLng thisll;
-    var myJson = json.decode(jsonString);
-
-    List<dynamic> routes = myJson['routes'];
-    List<dynamic> legs = routes[0]['legs'];
-    List<dynamic> steps = legs[0]['steps'];
-
-    steps.forEach((el) {
-      el['geometry']['coordinates'].forEach((arrEl) {
-        thisll = new LatLng(arrEl[1], arrEl[0]);
-        geometryList.add(thisll);
-      });
-    });
-    polyline = new Polyline(
-        points: geometryList,
-        color: Colors.indigoAccent,
-        strokeWidth: 3.0,
-        isDotted: true);
-    return polyline;
-  }
-
   List<Marker> _buildMarkers() {
     final _markerList = <Marker>[];
     for (var i = 0; i < mapMarkers.length; i++) {
@@ -125,7 +74,6 @@ class _AnimatedMarkersMapState extends State<AnimatedMarkersMap>
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 1));
     _animationController.repeat();
-    _polyLines();
     super.initState();
   }
 
