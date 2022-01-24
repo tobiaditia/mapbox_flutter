@@ -68,6 +68,9 @@ class _MapWidgetState extends State<MapWidget>
 
   @override
   Widget build(BuildContext context) {
+    final _styleTitle = TextStyle(
+        color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold);
+    final _styleAddress = TextStyle(color: Colors.grey[800], fontSize: 14);
     return FutureBuilder(
         future: getDirection(
             startLng: widget.startLng,
@@ -80,48 +83,110 @@ class _MapWidgetState extends State<MapWidget>
               child: Text('LOADING ....'),
             );
           }
-          return FlutterMap(
-            options:
-                MapOptions(minZoom: 5, zoom: 13, center: destination),
-            layers: [
-              TileLayerOptions(
-                  urlTemplate:
-                      'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-                  additionalOptions: {
-                    'accessToken': MAPBOX_ACCESS_TOKEN,
-                    'id': MAPBOX_STYLE,
-                  }),
-              MarkerLayerOptions(markers: [
-                Marker(
-                    height: 50,
-                    width: 50,
-                    point: myLocation,
-                    builder: (_) {
-                      return _MyLocationMarker(_animationController);
-                    })
-              ]),
-              MarkerLayerOptions(markers: [
-                Marker(
-                    height: 50,
-                    width: 50,
-                    point: destination,
-                    builder: (_) {
-                      return Center(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 400),
-                          child: const Icon(
-                            Icons.location_on,
-                            size: 50,
-                            color: Colors.red,
-                          ),
+          return Stack(
+            children: [
+              FlutterMap(
+                options:
+                    MapOptions(minZoom: 5, zoom: 13, center: destination),
+                layers: [
+                  TileLayerOptions(
+                      urlTemplate:
+                          'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+                      additionalOptions: {
+                        'accessToken': MAPBOX_ACCESS_TOKEN,
+                        'id': MAPBOX_STYLE,
+                      }),
+                  MarkerLayerOptions(markers: [
+                    Marker(
+                        height: 50,
+                        width: 50,
+                        point: myLocation,
+                        builder: (_) {
+                          return _MyLocationMarker(_animationController);
+                        })
+                  ]),
+                  MarkerLayerOptions(markers: [
+                    Marker(
+                        height: 50,
+                        width: 50,
+                        point: destination,
+                        builder: (_) {
+                          return Center(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 400),
+                              child: const Icon(
+                                Icons.location_on,
+                                size: 50,
+                                color: Colors.red,
+                              ),
+                            ),
+                          );
+                        })
+                  ]),
+                  PolylineLayerOptions(polylines: [
+                    Polyline(
+                        points: coordinates, strokeWidth: 4.0, color: Colors.blue)
+                  ]),
+                ],
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 20,
+                height: MediaQuery.of(context).size.height * .3,
+                child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        color: Colors.white,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Expanded(child: Image.asset('assets/animated_markers_map/Makam_Soekarno.jpg')),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  Expanded(
+                                      child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'mapMarker.title',
+                                        style: _styleTitle,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        'mapMarker.address',
+                                        style: _styleAddress,
+                                      ),
+                                    ],
+                                  ))
+                                ],
+                              ),
+                            ),
+                            MaterialButton(
+                              onPressed: () => {},
+                              color: MAPBOX_COLOR,
+                              padding: EdgeInsets.zero,
+                              elevation: 6,
+                              child: Text(
+                                'Go',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
+                              ),
+                            )
+                          ],
                         ),
-                      );
-                    })
-              ]),
-              PolylineLayerOptions(polylines: [
-                Polyline(
-                    points: coordinates, strokeWidth: 4.0, color: Colors.blue)
-              ]),
+                      ),
+                    )
+              )
             ],
           );
         });

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_flutter/animated_markers_map/animated_markers_map.dart';
 import 'package:mapbox_flutter/pages/detail_map_pages.dart';
+import 'package:mapbox_flutter/pages/home_page.dart';
+import 'package:mapbox_flutter/pages/main_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,9 +12,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      home: DetailMap()
+      home: MainPage()
     );
   }
 }
