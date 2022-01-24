@@ -1,23 +1,21 @@
 import 'dart:convert';
 
+import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/models/direction_model.dart';
+import 'package:mapbox_flutter/models/map_marker.dart';
 import 'package:mapbox_flutter/settings/application_settings.dart';
 import 'package:http/http.dart' as http;
 
 class MapWidget extends StatefulWidget {
-  final String startLng;
-  final String startLat;
-  final String endLng;
-  final String endLat;
+  final String startLng = '112.16489361584573';
+  final String startLat = '-8.113147856552782';
+  final MapMarker mapMarker;
   const MapWidget(
       {Key? key,
-      required this.startLng,
-      required this.startLat,
-      required this.endLng,
-      required this.endLat})
+      required this.mapMarker})
       : super(key: key);
 
   @override
@@ -30,14 +28,16 @@ class _MapWidgetState extends State<MapWidget>
   late DirectionModel directionModel;
 
   final List<LatLng> coordinates = [];
-  late final LatLng myLocation = LatLng(double.parse(widget.startLat),double.parse(widget.startLng));
-  late final LatLng destination = LatLng(double.parse(widget.endLat),double.parse(widget.endLng));
+  late final LatLng myLocation =
+      LatLng(double.parse(widget.startLat), double.parse(widget.startLng));
+  late final LatLng destination =
+      LatLng(double.parse(widget.mapMarker.endLat), double.parse(widget.mapMarker.endLng));
 
   Future getDirection(
       {required String startLng,
       required String startLat,
       required String endLng,
-      required String endLat}) async {
+      required String endLat,}) async {
     String mode = 'driving';
     Uri url = Uri.parse(
         'https://api.mapbox.com/directions/v5/mapbox/${mode}/${startLng},${startLat};${endLng},${endLat}?geometries=geojson&access_token=${MAPBOX_ACCESS_TOKEN}');
@@ -75,8 +75,8 @@ class _MapWidgetState extends State<MapWidget>
         future: getDirection(
             startLng: widget.startLng,
             startLat: widget.startLat,
-            endLng: widget.endLng,
-            endLat: widget.endLat),
+            endLng: widget.mapMarker.endLng,
+            endLat: widget.mapMarker.endLat),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -86,8 +86,7 @@ class _MapWidgetState extends State<MapWidget>
           return Stack(
             children: [
               FlutterMap(
-                options:
-                    MapOptions(minZoom: 5, zoom: 13, center: destination),
+                options: MapOptions(minZoom: 5, zoom: 13, center: destination),
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
@@ -125,68 +124,87 @@ class _MapWidgetState extends State<MapWidget>
                   ]),
                   PolylineLayerOptions(polylines: [
                     Polyline(
-                        points: coordinates, strokeWidth: 4.0, color: Colors.blue)
+                        points: coordinates,
+                        strokeWidth: 4.0,
+                        color: Colors.blue)
                   ]),
                 ],
               ),
               Positioned(
-                left: 0,
-                right: 0,
-                bottom: 20,
-                height: MediaQuery.of(context).size.height * .3,
-                child: Padding(
+                  left: 0,
+                  right: 0,
+                  bottom: 20,
+                  child: Padding(
                       padding: const EdgeInsets.all(15.0),
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        color: Colors.white,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Expanded(child: Image.asset('assets/animated_markers_map/Makam_Soekarno.jpg')),
-                                  SizedBox(
-                                    width: 15,
+                      child: ExpandableNotifier(
+                          child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Card(
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            children: <Widget>[
+                              // SizedBox(
+                              //   height: 150,
+                              //   child: Container(
+                              //     decoration: BoxDecoration(
+                              //       color: Colors.orange,
+                              //       shape: BoxShape.rectangle,
+                              //     ),
+                              //   ),
+                              // ),
+                              ScrollOnExpand(
+                                scrollOnExpand: true,
+                                scrollOnCollapse: false,
+                                child: ExpandablePanel(
+                                  theme: const ExpandableThemeData(
+                                    headerAlignment:
+                                        ExpandablePanelHeaderAlignment.center,
+                                    tapBodyToCollapse: true,
                                   ),
-                                  Expanded(
-                                      child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  header: Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Text(
+                                        widget.mapMarker.title,
+                                      )),
+                                  collapsed: Text(
+                                    widget.mapMarker.address,
+                                    softWrap: true,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  expanded: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'mapMarker.title',
-                                        style: _styleTitle,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      Text(
-                                        'mapMarker.address',
-                                        style: _styleAddress,
-                                      ),
+                                        CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      for (var _ in Iterable.generate(5))
+                                        Padding(
+                                            padding:
+                                                EdgeInsets.only(bottom: 10),
+                                            child: Text(
+                                              'loremIpsum',
+                                              softWrap: true,
+                                              overflow: TextOverflow.fade,
+                                            )),
                                     ],
-                                  ))
-                                ],
+                                  ),
+                                  builder: (_, collapsed, expanded) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 10, right: 10, bottom: 10),
+                                      child: Expandable(
+                                        collapsed: collapsed,
+                                        expanded: expanded,
+                                        theme: const ExpandableThemeData(
+                                            crossFadePoint: 0),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-                            MaterialButton(
-                              onPressed: () => {},
-                              color: MAPBOX_COLOR,
-                              padding: EdgeInsets.zero,
-                              elevation: 6,
-                              child: Text(
-                                'Go',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
-                            )
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-              )
+                      ))))
             ],
           );
         });

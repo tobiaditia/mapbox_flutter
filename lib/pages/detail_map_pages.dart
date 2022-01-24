@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mapbox_flutter/models/map_marker.dart';
 import 'package:mapbox_flutter/widgets/map_widgets.dart';
 
 class DetailMapPage extends StatefulWidget {
-  const DetailMapPage({Key? key}) : super(key: key);
+  final MapMarker mapMarker;
+  const DetailMapPage({Key? key, required this.mapMarker}) : super(key: key);
 
   @override
   State<DetailMapPage> createState() => _DetailMapPageState();
@@ -15,16 +17,10 @@ class _DetailMapPageState extends State<DetailMapPage>
     return Scaffold(
       appBar: AppBar(
         title: Text('Blitar Location'),
-        actions: [
-          IconButton(
-              onPressed: () => null, icon: Icon(Icons.filter_alt_outlined))
-        ],
       ),
-      body: const MapWidget(
-          startLng: '112.16489361584573',
-          startLat: '-8.113147856552782',
-          endLng: '112.1840767738206',
-          endLat: '-8.098532470089827'),
+      body: MapWidget(
+        mapMarker: widget.mapMarker,
+      ),
     );
   }
 }

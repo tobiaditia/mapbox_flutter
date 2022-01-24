@@ -1,6 +1,7 @@
 import 'package:animated_type_ahead_searchbar/animated_type_ahead_searchbar.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_flutter/models/map_marker.dart';
+import 'package:mapbox_flutter/pages/detail_map_pages.dart';
 import 'package:mapbox_flutter/widgets/card_widget.dart';
 
 class HomePage extends StatelessWidget {
@@ -25,9 +26,16 @@ class HomePage extends StatelessWidget {
                     itemCount: mapMarkers.length,
                     itemBuilder: (context, index) {
                       return Container(
-                        child: CardWidget(
-                            image: mapMarkers[index].image,
-                            title: mapMarkers[index].title),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => DetailMapPage(
+                                    mapMarker: mapMarkers[index])));
+                          },
+                          child: CardWidget(
+                              image: mapMarkers[index].image,
+                              title: mapMarkers[index].title),
+                        ),
                       );
                     }),
               ),
