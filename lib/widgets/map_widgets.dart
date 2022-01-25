@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/models/direction_model.dart';
 import 'package:mapbox_flutter/models/map_marker.dart';
@@ -10,13 +11,8 @@ import 'package:mapbox_flutter/settings/application_settings.dart';
 import 'package:http/http.dart' as http;
 
 class MapWidget extends StatefulWidget {
-  final String startLng = '112.16489361584573';
-  final String startLat = '-8.113147856552782';
   final MapMarker mapMarker;
-  const MapWidget(
-      {Key? key,
-      required this.mapMarker})
-      : super(key: key);
+  const MapWidget({Key? key, required this.mapMarker}) : super(key: key);
 
   @override
   State<MapWidget> createState() => _MapWidgetState();
@@ -28,19 +24,32 @@ class _MapWidgetState extends State<MapWidget>
   late DirectionModel directionModel;
 
   final List<LatLng> coordinates = [];
-  late final LatLng myLocation =
-      LatLng(double.parse(widget.startLat), double.parse(widget.startLng));
-  late final LatLng destination =
-      LatLng(double.parse(widget.mapMarker.endLat), double.parse(widget.mapMarker.endLng));
+  late final LatLng myLocation;
+  late final LatLng destination = LatLng(double.parse(widget.mapMarker.endLat),
+      double.parse(widget.mapMarker.endLng));
 
-  Future getDirection(
-      {required String startLng,
-      required String startLat,
-      required String endLng,
-      required String endLat,}) async {
+  Position? _currentPosition;
+  MapController _mapController = MapController();
+
+  Future getDirection({
+    required String endLng,
+    required String endLat,
+  }) async {
+    await _determinePosition();
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best,
+          forceAndroidLocationManager: true);
+          _currentPosition = position;
+      myLocation = LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      print('Location not shared');
+      print(e);
+    }
+
     String mode = 'driving';
     Uri url = Uri.parse(
-        'https://api.mapbox.com/directions/v5/mapbox/${mode}/${startLng},${startLat};${endLng},${endLat}?geometries=geojson&access_token=${MAPBOX_ACCESS_TOKEN}');
+        'https://api.mapbox.com/directions/v5/mapbox/${mode}/${_currentPosition!.longitude.toString()},${_currentPosition!.latitude.toString()};${endLng},${endLat}?geometries=geojson&access_token=${MAPBOX_ACCESS_TOKEN}');
 
     var response = await http.get(url);
     Map<String, dynamic> data =
@@ -73,10 +82,7 @@ class _MapWidgetState extends State<MapWidget>
     final _styleAddress = TextStyle(color: Colors.grey[800], fontSize: 14);
     return FutureBuilder(
         future: getDirection(
-            startLng: widget.startLng,
-            startLat: widget.startLat,
-            endLng: widget.mapMarker.endLng,
-            endLat: widget.mapMarker.endLat),
+            endLng: widget.mapMarker.endLng, endLat: widget.mapMarker.endLat),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -86,6 +92,7 @@ class _MapWidgetState extends State<MapWidget>
           return Stack(
             children: [
               FlutterMap(
+                mapController: _mapController,
                 options: MapOptions(minZoom: 5, zoom: 13, center: destination),
                 layers: [
                   TileLayerOptions(
@@ -208,6 +215,31 @@ class _MapWidgetState extends State<MapWidget>
             ],
           );
         });
+  }
+
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    return await Geolocator.getCurrentPosition();
   }
 }
 

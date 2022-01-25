@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:mapbox_flutter/pages/home_page.dart';
 import 'package:mapbox_flutter/pages/profile_page.dart';
+import 'package:mapbox_flutter/pages/favourite_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -17,10 +18,7 @@ class _MainPageState extends State<MainPage> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
-    Text(
-      'Favourite',
-      style: optionStyle,
-    ),
+    FovouritePage(),
     Text(
       'Add',
       style: optionStyle,
