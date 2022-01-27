@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -18,11 +19,8 @@ class _FovouritePageState extends State<FovouritePage> {
       super.initState();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Location"),
-      ),
-      body: Center(
+    return  Scaffold(
+      body: (FirebaseAuth.instance.currentUser != null) ? Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -38,7 +36,7 @@ class _FovouritePageState extends State<FovouritePage> {
             ),
           ],
         ),
-      ),
+      ) : Center(child: Text('Login dahulu')),
     );
   }
 
