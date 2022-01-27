@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:mapbox_flutter/pages/detail_map_pages.dart';
-import 'package:mapbox_flutter/pages/home_page.dart';
-import 'package:mapbox_flutter/pages/main_page.dart';
 
-void main() {
+import 'package:flutter/material.dart';
+import 'package:mapbox_flutter/pages/main_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -13,9 +15,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      home: MainPage()
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        home: MainPage());
   }
+
+  
 }

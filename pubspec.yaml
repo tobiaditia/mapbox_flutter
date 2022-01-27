@@ -45,6 +45,7 @@ dependencies:
   intl: ^0.17.0
   latlong2: ^0.8.1
   location: ^4.3.0
+  shared_preferences: ^2.0.12
   shimmer: ^2.0.0
 
 dev_dependencies:

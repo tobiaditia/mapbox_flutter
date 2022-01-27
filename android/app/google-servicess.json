@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "947937276106",
+    "project_id": "flutter-mapbox-37543",
+    "storage_bucket": "flutter-mapbox-37543.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:947937276106:android:0b074a55ec799f49da8433",
+        "android_client_info": {
+          "package_name": "com.example.mapbox_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "947937276106-jmp63vulfj5imbnbtuof9h2557i4prf9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOhTY8oLATjaoZF53U9sOTfcGZhe_kI7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "947937276106-jmp63vulfj5imbnbtuof9h2557i4prf9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "886131332893",
+    "project_id": "flutter-mapbox2",
+    "storage_bucket": "flutter-mapbox2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886131332893:android:56850e04e081b5d44eb3f4",
+        "android_client_info": {
+          "package_name": "com.example.mapbox_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "886131332893-edt73pmp5vomek3sd5cu7k706igb8gih.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mapbox_flutter",
+            "certificate_hash": "3c4d0f3649dbccf1f94a918a635b43f4d89a9209"
+          }
+        },
+        {
+          "client_id": "886131332893-2n1icoffl97504f3cdt2vv0h458gkn7l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0Jjp2OXKcimAA-xgVf5a-KuowvTZZ4xU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "886131332893-2n1icoffl97504f3cdt2vv0h458gkn7l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
