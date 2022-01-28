@@ -1,20 +1,20 @@
 {
   "project_info": {
-    "project_number": "460417579207",
-    "project_id": "flutter-mapbox-c3399",
-    "storage_bucket": "flutter-mapbox-c3399.appspot.com"
+    "project_number": "886131332893",
+    "project_id": "flutter-mapbox2",
+    "storage_bucket": "flutter-mapbox2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:460417579207:android:1207b603d0f370bb66a6e2",
+        "mobilesdk_app_id": "1:886131332893:android:56850e04e081b5d44eb3f4",
         "android_client_info": {
           "package_name": "com.example.mapbox_flutter"
         }
       },
       "oauth_client": [
         {
-          "client_id": "460417579207-gk3lrhnh9cm33cm7100qsk297m6i8rkb.apps.googleusercontent.com",
+          "client_id": "886131332893-edt73pmp5vomek3sd5cu7k706igb8gih.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.mapbox_flutter",
@@ -22,20 +22,20 @@
           }
         },
         {
-          "client_id": "460417579207-sakskp9k1uo95fo5nvj2ff9ujd3ihv2r.apps.googleusercontent.com",
+          "client_id": "886131332893-2n1icoffl97504f3cdt2vv0h458gkn7l.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDjit7Sr9LMrkf7qGEmIr_YTimrkjJfNIA"
+          "current_key": "AIzaSyA0Jjp2OXKcimAA-xgVf5a-KuowvTZZ4xU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "460417579207-sakskp9k1uo95fo5nvj2ff9ujd3ihv2r.apps.googleusercontent.com",
+              "client_id": "886131332893-2n1icoffl97504f3cdt2vv0h458gkn7l.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

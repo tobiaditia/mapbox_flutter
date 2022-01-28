@@ -15,7 +15,7 @@ class CardWidget extends StatelessWidget {
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Image.asset(image, fit: BoxFit.cover),
+                child: Image.network(image, fit: BoxFit.cover),
               ),
             ),
             Positioned(
