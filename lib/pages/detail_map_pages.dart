@@ -16,7 +16,7 @@ class _DetailMapPageState extends State<DetailMapPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Blitar Location'),
+        title: Text(widget.mapMarker.title),
       ),
       body: MapWidget(
         mapMarker: widget.mapMarker,

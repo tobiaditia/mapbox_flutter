@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animated_type_ahead_searchbar/animated_type_ahead_searchbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -18,14 +20,40 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String query = '';
-  late List<MapMarker> mapMarkers2;
+  late List<MapMarker> mapMarkers2 = [];
   var ref = FirebaseStorage.instance.ref().child('locations');
+  Timer? debouncer;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    setState(() => isLoading = true);
+    init().then((value) => setState(() => isLoading = false));
+  }
 
-    mapMarkers2 = mapMarkers;
+  @override
+  void dispose() {
+    debouncer?.cancel();
+    super.dispose();
+  }
+
+  void debounce(
+    VoidCallback callback, {
+    Duration duration = const Duration(milliseconds: 1000),
+  }) {
+    if (debouncer != null) {
+      debouncer!.cancel();
+    }
+
+    debouncer = Timer(duration, callback);
+  }
+
+  Future init() async {
+    List<MapMarker> mapMarkers3 =
+        await FirebaseServices().getDataFromFireStoreToList(query);
+
+    setState(() => this.mapMarkers2 = mapMarkers3);
   }
 
   @override
@@ -40,37 +68,21 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 20,
               ),
-              Expanded(
-                child: FutureBuilder<QuerySnapshot<Object?>>(
-                    future: FirebaseServices().getDataFromFireStore(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-                      var locations = snapshot.data!.docs;
-                      return ListView.builder(
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          itemCount: locations.length,
-                          itemBuilder: (context, index) {
-                            // var url2 = FirebaseServices()
-                            //     .getImageFromFireStorage(
-                            //         locations[index].get('image'));
-                            FirebaseServices().getDataFromFireStoreToList();
-                            final mapMarker = MapMarker(
-                                image: locations[index].get('image'),
-                                title: locations[index].get('name'),
-                                address: locations[index].get('address'),
-                                location: LatLng(
-                                    -8.084429972199272, 112.17616549859079),
-                                endLat: '-8.084429972199272',
-                                endLng: '112.17616549859079');
+              (isLoading)
+                  ? CircularProgressIndicator()
+                  : ((mapMarkers2.isEmpty)
+                      ? Text('Data Tidak Ditemukan !')
+                      : Expanded(
+                          child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: mapMarkers2.length,
+                              itemBuilder: (context, index) {
+                                // FirebaseServices().getDataFromFireStoreToList();
 
-                            print(mapMarker.image);
-                            return buildMapMarker(mapMarker, index);
-                          });
-                    }),
-              ),
+                                return buildMapMarker(
+                                    mapMarkers2[index], index);
+                              }))),
             ],
           ),
         ),
@@ -81,17 +93,19 @@ class _HomePageState extends State<HomePage> {
   Widget buildSearch() => SearchWidget(
       text: query, hintText: "Nama Lokasi", onChanged: searchLocation);
 
-  void searchLocation(String query) {
-    final mapMarkers3 = mapMarkers.where((mapMarker) {
-      final titleLower = mapMarker.title.toLowerCase();
-      final searchLower = query.toLowerCase();
+  Future searchLocation(String query) async {
+    setState(() => isLoading = true);
+    debounce(() async {
+      final mapMarkers3 =
+          await FirebaseServices().getDataFromFireStoreToList(query);
 
-      return titleLower.contains(searchLower);
-    }).toList();
+      if (!mounted) return;
 
-    setState(() {
-      this.query = query;
-      this.mapMarkers2 = mapMarkers3;
+      setState(() {
+        this.query = query;
+        this.mapMarkers2 = mapMarkers3;
+        isLoading = false;
+      });
     });
   }
 
