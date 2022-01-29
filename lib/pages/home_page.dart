@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:animated_type_ahead_searchbar/animated_type_ahead_searchbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/models/map_marker.dart';
 import 'package:mapbox_flutter/pages/detail_map_pages.dart';
@@ -56,6 +58,23 @@ class _HomePageState extends State<HomePage> {
     setState(() => this.mapMarkers2 = mapMarkers3);
   }
 
+  Future refresh() async {
+    mapMarkers2 = [];
+    List<MapMarker> mapMarkers3 = await FirebaseServices()
+        .getDataFromFireStoreToList(query: query, favourite: false);
+
+    setState(() {
+      mapMarkers2 = mapMarkers3;
+      isLoading = false;
+      print(mapMarkers2[0].likedUser);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 1),
+        content: Text('Berhasil Update Data !'),
+      ));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +83,8 @@ class _HomePageState extends State<HomePage> {
           margin: const EdgeInsets.all(20),
           child: Column(
             children: [
+              Text('Lokasi Wisata',style: GoogleFonts.poppins(fontWeight: FontWeight.bold,fontSize: 24,color: Color(0xff504F5E)),),
+              SizedBox(height: 20,),
               buildSearch(),
               SizedBox(
                 height: 20,
@@ -73,16 +94,13 @@ class _HomePageState extends State<HomePage> {
                   : ((mapMarkers2.isEmpty)
                       ? Text('Data Tidak Ditemukan !')
                       : Expanded(
-                          child: ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: mapMarkers2.length,
-                              itemBuilder: (context, index) {
-                                // FirebaseServices().getDataFromFireStoreToList();
-
-                                return buildMapMarker(
-                                    mapMarkers2[index], index);
-                              }))),
+                          child: ListView(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          children: mapMarkers2
+                              .map((e) => buildMapMarker(e))
+                              .toList(),
+                        ))),
             ],
           ),
         ),
@@ -109,16 +127,127 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget buildMapMarker(MapMarker mapMarker, int index) => Container(
+  Widget buildMapMarker(MapMarker mapMarker) => Container(
         child: GestureDetector(
           onTap: () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => DetailMapPage(mapMarker: mapMarker)));
           },
-          child: CardWidget(
-              mapMarker: mapMarker,
-              image: mapMarker.image,
-              title: mapMarker.title),
+          child: Container(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              height: 150,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(mapMarker.image, fit: BoxFit.cover),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20)),
+                            gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [
+                                  Colors.blue.shade900.withOpacity(.6),
+                                  Colors.transparent,
+                                ]))),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Text(mapMarker.title,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18))
+                        ],
+                      ),
+                    ),
+                  ),
+                  (FirebaseAuth.instance.currentUser != null)
+                      ? Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  setState(() {
+                                    isLoading = true;
+                                    liked(mapMarker);
+                                  });
+                                },
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey[200],
+                                      border: Border.all(
+                                          color: Colors.grey.shade500,
+                                          width: 1)),
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: (mapMarker.likedUser!.contains(
+                                            FirebaseAuth
+                                                .instance.currentUser!.uid
+                                                .toString()))
+                                        ? Colors.pink
+                                        : Colors.black,
+                                    size: 17,
+                                  ),
+                                ),
+                              )),
+                        )
+                      : SizedBox()
+                ],
+              )),
         ),
       );
+
+  Future<void> liked(MapMarker mapMarker) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid.toString();
+    var collection =
+        FirebaseFirestore.instance.collection('locations').doc(mapMarker.id);
+    var docSnapshot = await collection.get();
+    Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+    var mapModel = MapMarker.fromJson(data, mapMarker.id);
+    List<dynamic>? newDataUserliked = mapModel.likedUser;
+    if (newDataUserliked!.length > 0) {
+      if (newDataUserliked.contains(userId)) {
+        newDataUserliked.remove(userId);
+      } else {
+        newDataUserliked.add(userId);
+      }
+    } else {
+      newDataUserliked.add(userId);
+    }
+    if (!data.values.isEmpty) {
+      collection.update({
+        'name': mapModel.title,
+        'address': mapModel.address,
+        'image': mapModel.image,
+        'latitude': mapModel.endLat,
+        'longitude': mapModel.endLng,
+        'userId': mapModel.userId,
+        'likedUser': newDataUserliked,
+      }).then((value) {
+        setState(() {
+          refresh();
+        });
+      }).catchError((error) => print("Failed to update user: $error"));
+    }
+    ;
+  }
 }

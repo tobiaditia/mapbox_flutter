@@ -26,7 +26,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     final style = widget.text.isEmpty ? styleHint : styleActive;
     return Container(
       height: 42,
-      margin: EdgeInsets.all(16),
+      margin: EdgeInsets.all(4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,

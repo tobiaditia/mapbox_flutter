@@ -4,6 +4,7 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/models/direction_model.dart';
 import 'package:mapbox_flutter/models/map_marker.dart';
@@ -44,8 +45,7 @@ class _MapWidgetState extends State<MapWidget>
           forceAndroidLocationManager: true);
       _currentPosition = position;
       myLocation = LatLng(position.latitude, position.longitude);
-    } catch (e) {
-    }
+    } catch (e) {}
 
     String mode = 'driving';
     Uri url = Uri.parse(
@@ -173,6 +173,8 @@ class _MapWidgetState extends State<MapWidget>
                                       padding: EdgeInsets.all(10),
                                       child: Text(
                                         widget.mapMarker.title,
+                                        style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.bold,),
                                       )),
                                   collapsed: Text(
                                     widget.mapMarker.address,

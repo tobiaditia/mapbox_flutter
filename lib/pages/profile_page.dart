@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mapbox_flutter/services/auth_social.dart';
 
@@ -30,14 +31,27 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            (FirebaseAuth.instance.currentUser == null)
-                ? isNotLogin()
-                : isLogin()
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Profil',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Color(0xff504F5E)),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              (FirebaseAuth.instance.currentUser == null)
+                  ? isNotLogin()
+                  : isLogin()
+            ],
+          ),
         ),
       ),
     );

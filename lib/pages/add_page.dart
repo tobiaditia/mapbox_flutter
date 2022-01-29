@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mapbox_flutter/settings/application_settings.dart';
@@ -37,104 +38,105 @@ class _AddPageState extends State<AddPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        margin: EdgeInsets.all(24),
-        child: (FirebaseAuth.instance.currentUser != null)
-            ? ((!isLoading)
-                ? Column(
-                    children: [
-                      Text('Tambah Lokasi'),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      MaterialButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(24),
+          child: (FirebaseAuth.instance.currentUser != null)
+              ? ((!isLoading)
+                  ? Column(
+                      children: [
+                        Text(
+                          'Lokasi Wisata',
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              color: Color(0xff504F5E)),
                         ),
-                        elevation: 5.0,
-                        height: 60,
-                        onPressed: () {
-                          getImage();
-                        },
-                        child: Text(
-                          "Ambil Gambar",
-                          style: TextStyle(
-                            fontStyle: FontStyle.normal,
-                          ),
+                        SizedBox(
+                          height: 20,
                         ),
-                        color: Colors.blue,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextField(
-                        controller: nameController,
-                        decoration: InputDecoration(label: Text('Nama')),
-                      ),
-                      TextField(
-                        controller: addressController,
-                        decoration: InputDecoration(label: Text('Address')),
-                      ),
-                      // FlutterMap(
-                      //   options:
-                      //       MapOptions(minZoom: 5, zoom: 13, center: myLocation),
-                      //   layers: [
-                      //     TileLayerOptions(
-                      //         urlTemplate:
-                      //             'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-                      //         additionalOptions: {
-                      //           'accessToken': MAPBOX_ACCESS_TOKEN,
-                      //           'id': MAPBOX_STYLE,
-                      //         }),
-                      //     MarkerLayerOptions(markers: [
-                      //       Marker(
-                      //           height: 50,
-                      //           width: 50,
-                      //           point: myLocation,
-                      //           builder: (_) {
-                      //             return Center(
-                      //               child: AnimatedContainer(
-                      //                 duration: const Duration(milliseconds: 400),
-                      //                 child: const Icon(
-                      //                   Icons.location_on,
-                      //                   size: 50,
-                      //                   color: Colors.red,
-                      //                 ),
-                      //               ),
-                      //             );
-                      //           })
-                      //     ]),
-                      //   ],
-                      // ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: addLocation,
-                        style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 20),
-                            primary: Colors.black.withOpacity(.6),
-                            elevation: 2),
-                        icon: Icon(Icons.add_circle),
-                        label: const Text('Tambahkan'),
-                      )
-                    ],
-                  )
-                : Stack(
-                    alignment: FractionalOffset.center,
-                    children: <Widget>[
-                      new CircularProgressIndicator(
-                        backgroundColor: Colors.red,
-                      ),
-                    ],
-                  ))
-            : Center(
-                child: Text('Harus Login Dahulu !'),
-              ),
+                        MaterialButton(
+                          elevation: 2,
+                          onPressed: () {
+                            getImage();
+                          },
+                          child: Text(
+                            "Ambil Gambar",
+                            style: TextStyle(
+                                fontStyle: FontStyle.normal, color: Colors.white),
+                          ),
+                          color: Colors.black.withOpacity(.6),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(label: Text('Nama')),
+                        ),
+                        TextField(
+                          controller: addressController,
+                          decoration: InputDecoration(label: Text('Address')),
+                        ),
+                        // FlutterMap(
+                        //   options:
+                        //       MapOptions(minZoom: 5, zoom: 13, center: myLocation),
+                        //   layers: [
+                        //     TileLayerOptions(
+                        //         urlTemplate:
+                        //             'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+                        //         additionalOptions: {
+                        //           'accessToken': MAPBOX_ACCESS_TOKEN,
+                        //           'id': MAPBOX_STYLE,
+                        //         }),
+                        //     MarkerLayerOptions(markers: [
+                        //       Marker(
+                        //           height: 50,
+                        //           width: 50,
+                        //           point: myLocation,
+                        //           builder: (_) {
+                        //             return Center(
+                        //               child: AnimatedContainer(
+                        //                 duration: const Duration(milliseconds: 400),
+                        //                 child: const Icon(
+                        //                   Icons.location_on,
+                        //                   size: 50,
+                        //                   color: Colors.red,
+                        //                 ),
+                        //               ),
+                        //             );
+                        //           })
+                        //     ]),
+                        //   ],
+                        // ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: addLocation,
+                          style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              primary: Colors.black.withOpacity(.6),
+                              elevation: 2),
+                          icon: Icon(Icons.add_circle),
+                          label: const Text('Tambahkan'),
+                        )
+                      ],
+                    )
+                  : Stack(
+                      alignment: FractionalOffset.center,
+                      children: <Widget>[
+                        new CircularProgressIndicator(
+                          backgroundColor: Colors.red,
+                        ),
+                      ],
+                    ))
+              : Center(
+                  child: Text('Harus Login Dahulu !'),
+                ),
+        ),
       ),
     );
   }

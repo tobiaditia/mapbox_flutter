@@ -69,7 +69,7 @@ class _CardWidgetState extends State<CardWidget> {
                     child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             setState(() {
                               liked();
                               ScaffoldMessenger.of(context)

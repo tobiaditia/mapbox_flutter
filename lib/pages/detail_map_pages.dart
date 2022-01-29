@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mapbox_flutter/models/map_marker.dart';
 import 'package:mapbox_flutter/widgets/map_widgets.dart';
 
@@ -16,7 +17,9 @@ class _DetailMapPageState extends State<DetailMapPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.mapMarker.title),
+        title: Text(widget.mapMarker.title,style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xffE1E1E1)),),
       ),
       body: MapWidget(
         mapMarker: widget.mapMarker,
