@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:animated_type_ahead_searchbar/animated_type_ahead_searchbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -28,8 +29,10 @@ class FovouritePageState extends State<FovouritePage> {
   @override
   void initState() {
     super.initState();
-    setState(() => isLoading = true);
-    init().then((value) => setState(() => isLoading = false));
+    if (FirebaseAuth.instance.currentUser != null) {
+      setState(() => isLoading = true);
+      init().then((value) => setState(() => isLoading = false));
+    }
   }
 
   @override
@@ -60,32 +63,36 @@ class FovouritePageState extends State<FovouritePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              buildSearch(),
-              SizedBox(
-                height: 20,
-              ),
-              (isLoading)
-                  ? CircularProgressIndicator()
-                  : ((mapMarkers2.isEmpty)
-                      ? Text('Data Tidak Ditemukan !')
-                      : Expanded(
-                          child: ListView.builder(
-                              scrollDirection: Axis.vertical,
-                              shrinkWrap: true,
-                              itemCount: mapMarkers2.length,
-                              itemBuilder: (context, index) {
-                                // FirebaseServices().getDataFromFireStoreToList();
+        child: (FirebaseAuth.instance.currentUser != null)
+            ? Container(
+                margin: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    buildSearch(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    (isLoading)
+                        ? CircularProgressIndicator()
+                        : ((mapMarkers2.isEmpty)
+                            ? Text('Data Tidak Ditemukan !')
+                            : Expanded(
+                                child: ListView.builder(
+                                    scrollDirection: Axis.vertical,
+                                    shrinkWrap: true,
+                                    itemCount: mapMarkers2.length,
+                                    itemBuilder: (context, index) {
+                                      // FirebaseServices().getDataFromFireStoreToList();
 
-                                return buildMapMarker(
-                                    mapMarkers2[index], index);
-                              }))),
-            ],
-          ),
-        ),
+                                      return buildMapMarker(
+                                          mapMarkers2[index], index);
+                                    }))),
+                  ],
+                ),
+              )
+            : Center(
+                child: Text('Harus Login Dahulu !'),
+              ),
       ),
     );
   }

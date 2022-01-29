@@ -133,7 +133,7 @@ class _AddPageState extends State<AddPage> {
                     ],
                   ))
             : Center(
-                child: Text('Login dahulu'),
+                child: Text('Harus Login Dahulu !'),
               ),
       ),
     );
