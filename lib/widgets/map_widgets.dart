@@ -27,6 +27,8 @@ class _MapWidgetState extends State<MapWidget>
   late final LatLng myLocation;
   late final LatLng destination = LatLng(double.parse(widget.mapMarker.endLat),
       double.parse(widget.mapMarker.endLng));
+  double distance = 0.0;
+  int duration = 0;
 
   Position? _currentPosition;
   MapController _mapController = MapController();
@@ -40,7 +42,7 @@ class _MapWidgetState extends State<MapWidget>
       Position position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best,
           forceAndroidLocationManager: true);
-          _currentPosition = position;
+      _currentPosition = position;
       myLocation = LatLng(position.latitude, position.longitude);
     } catch (e) {
       print('Location not shared');
@@ -55,7 +57,11 @@ class _MapWidgetState extends State<MapWidget>
     Map<String, dynamic> data =
         json.decode(response.body) as Map<String, dynamic>;
     directionModel = DirectionModel.fromJson(data);
-
+    // print(url);
+    // print(response);
+    // print(directionModel.distance);
+    distance = convertToKm(directionModel.distance);
+    duration = Duration(seconds: directionModel.duration.toInt()).inMinutes;
     for (var coordinate in directionModel.coordinates) {
       coordinates.add(LatLng(coordinate[1], coordinate[0]));
     }
@@ -179,21 +185,36 @@ class _MapWidgetState extends State<MapWidget>
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  expanded: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      for (var _ in Iterable.generate(5))
-                                        Padding(
-                                            padding:
-                                                EdgeInsets.only(bottom: 10),
+                                  expanded: Table(
+                                      defaultVerticalAlignment:
+                                          TableCellVerticalAlignment.middle,
+                                      defaultColumnWidth:
+                                          FractionColumnWidth(.50),
+                                      border: TableBorder.all(),
+                                      children: [
+                                        TableRow(children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text('Jarak'),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
                                             child: Text(
-                                              'loremIpsum',
-                                              softWrap: true,
-                                              overflow: TextOverflow.fade,
-                                            )),
-                                    ],
-                                  ),
+                                                '${distance.toString()} KM'),
+                                          ),
+                                        ]),
+                                        TableRow(children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text('Durasi'),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                                '${duration.toString()} menit'),
+                                          ),
+                                        ]),
+                                      ]),
                                   builder: (_, collapsed, expanded) {
                                     return Padding(
                                       padding: EdgeInsets.only(
@@ -273,4 +294,14 @@ class _MyLocationMarker extends AnimatedWidget {
       ],
     ));
   }
+}
+
+double convertToKm(double meter) {
+  double distanceInKiloMeters = meter / 1000;
+  double roundDistanceInKM =
+      double.parse((distanceInKiloMeters).toStringAsFixed(2));
+
+  print(distanceInKiloMeters);
+  print(roundDistanceInKM);
+  return roundDistanceInKM;
 }
