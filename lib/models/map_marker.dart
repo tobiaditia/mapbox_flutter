@@ -1,13 +1,14 @@
 import 'package:latlong2/latlong.dart';
 
 class MapMarker {
-  const MapMarker({
+   MapMarker({
     required this.image,
     required this.title,
     required this.address,
     required this.location,
     required this.endLat,
     required this.endLng,
+    this.userId = '' ,
   });
 
   final String image;
@@ -16,6 +17,7 @@ class MapMarker {
   final LatLng location;
   final String endLat;
   final String endLng;
+  String userId = '';
 }
 
 final List<LatLng> locations = [

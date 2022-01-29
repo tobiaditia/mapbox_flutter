@@ -61,9 +61,8 @@ class _AddPageState extends State<AddPage> {
                           getImage();
                         },
                         child: Text(
-                          "  Get image",
+                          "Ambil Gambar",
                           style: TextStyle(
-                            fontSize: 20,
                             fontStyle: FontStyle.normal,
                           ),
                         ),
@@ -144,11 +143,12 @@ class _AddPageState extends State<AddPage> {
   getImage() async {
     var img = await image.pickImage(source: ImageSource.camera);
 
-    setState(() {
-      file = File(img!.path);
-    });
-    if (file != null) {
+    if (img?.path != null) {
       name = img!.name;
+      file = File(img.path);
+      setState(() {});
+    } else {
+      setState(() {});
     }
   }
 
@@ -196,6 +196,14 @@ class _AddPageState extends State<AddPage> {
       });
       return Future.error(1);
     }
+    if (file == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(showAlert(false, 'Gambar tidak boleh kosong !'));
+      setState(() {
+        isLoading = false;
+      });
+      return Future.error(1);
+    }
 
     await uploadFile();
 
@@ -204,8 +212,13 @@ class _AddPageState extends State<AddPage> {
       'address': addressController.text,
       'image': url,
       'likedUser': likedUser,
-      'latitude': latitudeController.text,
-      'longitude': longitudeController.text,
+      'latitude': latitudeController.text == ''
+          ? '-8.084429972199272'
+          : latitudeController.text,
+      'longitude': longitudeController.text == ''
+          ? '112.17616549859079'
+          : longitudeController.text,
+      'userId': FirebaseAuth.instance.currentUser!.uid.toString(),
     }).then((value) {
       print("Locations Added");
 

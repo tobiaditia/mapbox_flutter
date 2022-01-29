@@ -28,14 +28,18 @@ class FirebaseServices {
             location: LatLng(double.parse(result.get('latitude')),
                 double.parse(result.get('longitude'))),
             endLat: result.get('latitude'),
-            endLng: result.get('longitude')));
+            endLng: result.get('longitude'),
+            userId: result.get('userId')));
       });
-      data2 = data.where((location) {
-        final titleLower = location.title.toLowerCase();
-        final searchLower = query.toLowerCase();
+      data2 = data
+          .where((location) {
+            final titleLower = location.title.toLowerCase();
+            final searchLower = query.toLowerCase();
 
-        return titleLower.contains(searchLower);
-      }).toList();
+            return titleLower.contains(searchLower);
+          })
+          .where((location) => location.userId == '')
+          .toList();
       return data2;
     });
   }
