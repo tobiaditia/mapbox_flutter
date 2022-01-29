@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mapbox_flutter/pages/main_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:mapbox_flutter/pages/splash_page.dart';
 
