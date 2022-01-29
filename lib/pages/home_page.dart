@@ -50,8 +50,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future init() async {
-    List<MapMarker> mapMarkers3 =
-        await FirebaseServices().getDataFromFireStoreToList(query);
+    List<MapMarker> mapMarkers3 = await FirebaseServices()
+        .getDataFromFireStoreToList(query: query, favourite: false);
 
     setState(() => this.mapMarkers2 = mapMarkers3);
   }
@@ -96,8 +96,8 @@ class _HomePageState extends State<HomePage> {
   Future searchLocation(String query) async {
     setState(() => isLoading = true);
     debounce(() async {
-      final mapMarkers3 =
-          await FirebaseServices().getDataFromFireStoreToList(query);
+      final mapMarkers3 = await FirebaseServices()
+          .getDataFromFireStoreToList(query: query, favourite: false);
 
       if (!mounted) return;
 
@@ -115,7 +115,10 @@ class _HomePageState extends State<HomePage> {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => DetailMapPage(mapMarker: mapMarker)));
           },
-          child: CardWidget(image: mapMarker.image, title: mapMarker.title),
+          child: CardWidget(
+              mapMarker: mapMarker,
+              image: mapMarker.image,
+              title: mapMarker.title),
         ),
       );
 }

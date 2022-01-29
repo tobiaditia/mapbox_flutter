@@ -45,8 +45,6 @@ class _MapWidgetState extends State<MapWidget>
       _currentPosition = position;
       myLocation = LatLng(position.latitude, position.longitude);
     } catch (e) {
-      print('Location not shared');
-      print(e);
     }
 
     String mode = 'driving';
@@ -57,9 +55,6 @@ class _MapWidgetState extends State<MapWidget>
     Map<String, dynamic> data =
         json.decode(response.body) as Map<String, dynamic>;
     directionModel = DirectionModel.fromJson(data);
-    // print(url);
-    // print(response);
-    // print(directionModel.distance);
     distance = convertToKm(directionModel.distance);
     duration = Duration(seconds: directionModel.duration.toInt()).inMinutes;
     for (var coordinate in directionModel.coordinates) {

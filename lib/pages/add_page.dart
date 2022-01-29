@@ -22,7 +22,6 @@ class _AddPageState extends State<AddPage> {
       FirebaseFirestore.instance.collection('locations');
 
   // String image = 'image';
-  String likedUser = '';
   // late final LatLng myLocation;
   Position? _currentPosition;
   File? file;
@@ -211,7 +210,7 @@ class _AddPageState extends State<AddPage> {
       'name': nameController.text,
       'address': addressController.text,
       'image': url,
-      'likedUser': likedUser,
+      'likedUser': [],
       'latitude': latitudeController.text == ''
           ? '-8.084429972199272'
           : latitudeController.text,

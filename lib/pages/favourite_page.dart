@@ -1,83 +1,124 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+
+import 'package:animated_type_ahead_searchbar/animated_type_ahead_searchbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_flutter/models/map_marker.dart';
+import 'package:mapbox_flutter/pages/detail_map_pages.dart';
+import 'package:mapbox_flutter/services/firebase_services.dart';
+import 'package:mapbox_flutter/widgets/card_widget.dart';
+import 'package:mapbox_flutter/widgets/search_widget.dart';
 
 class FovouritePage extends StatefulWidget {
   const FovouritePage({Key? key}) : super(key: key);
 
   @override
-  _FovouritePageState createState() => _FovouritePageState();
+  State<FovouritePage> createState() => FovouritePageState();
 }
 
-class _FovouritePageState extends State<FovouritePage> {
-  Position? _currentPosition;
+class FovouritePageState extends State<FovouritePage> {
+  String query = '';
+  late List<MapMarker> mapMarkers2 = [];
+  var ref = FirebaseStorage.instance.ref().child('locations');
+  Timer? debouncer;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() => isLoading = true);
+    init().then((value) => setState(() => isLoading = false));
+  }
+
+  @override
+  void dispose() {
+    debouncer?.cancel();
+    super.dispose();
+  }
+
+  void debounce(
+    VoidCallback callback, {
+    Duration duration = const Duration(milliseconds: 1000),
+  }) {
+    if (debouncer != null) {
+      debouncer!.cancel();
+    }
+
+    debouncer = Timer(duration, callback);
+  }
+
+  Future init() async {
+    List<MapMarker> mapMarkers3 = await FirebaseServices()
+        .getDataFromFireStoreToList(query: query, favourite: true);
+
+    setState(() => this.mapMarkers2 = mapMarkers3);
+  }
 
   @override
   Widget build(BuildContext context) {
-    @override
-    void initState() {
-      super.initState();
-    }
+    return Scaffold(
+      body: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              buildSearch(),
+              SizedBox(
+                height: 20,
+              ),
+              (isLoading)
+                  ? CircularProgressIndicator()
+                  : ((mapMarkers2.isEmpty)
+                      ? Text('Data Tidak Ditemukan !')
+                      : Expanded(
+                          child: ListView.builder(
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemCount: mapMarkers2.length,
+                              itemBuilder: (context, index) {
+                                // FirebaseServices().getDataFromFireStoreToList();
 
-    return  Scaffold(
-      body: (FirebaseAuth.instance.currentUser != null) ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            if (_currentPosition != null)
-              Text(
-                  "LAT: ${_currentPosition!.latitude}, LNG: ${_currentPosition!.longitude}"),
-            FlatButton(
-              child: Text("Get location"),
-              onPressed: () {
-                print('hello');
-                _getCurrentLocation();
-              },
-            ),
-          ],
+                                return buildMapMarker(
+                                    mapMarkers2[index], index);
+                              }))),
+            ],
+          ),
         ),
-      ) : Center(child: Text('Login dahulu')),
+      ),
     );
   }
 
-  
-    Future<Position> _determinePosition() async {
-      bool serviceEnabled;
-      LocationPermission permission;
+  Widget buildSearch() => SearchWidget(
+      text: query, hintText: "Nama Lokasi", onChanged: searchLocation);
 
-      serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        return Future.error('Location services are disabled.');
-      }
+  Future searchLocation(String query) async {
+    setState(() => isLoading = true);
+    debounce(() async {
+      final mapMarkers3 = await FirebaseServices()
+          .getDataFromFireStoreToList(query: query, favourite: true);
 
-      permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          return Future.error('Location permissions are denied');
-        }
-      }
+      if (!mounted) return;
 
-      if (permission == LocationPermission.deniedForever) {
-        return Future.error(
-            'Location permissions are permanently denied, we cannot request permissions.');
-      }
-
-      return await Geolocator.getCurrentPosition();
-    }
-
-
-  _getCurrentLocation() {
-    _determinePosition();
-    Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.best,
-            forceAndroidLocationManager: true)
-        .then((Position position) {
       setState(() {
-        _currentPosition = position;
+        this.query = query;
+        this.mapMarkers2 = mapMarkers3;
+        isLoading = false;
       });
-    }).catchError((e) {
-      print(e);
     });
   }
+
+  Widget buildMapMarker(MapMarker mapMarker, int index) => Container(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => DetailMapPage(mapMarker: mapMarker)));
+          },
+          child: CardWidget(
+              mapMarker: mapMarker,
+              image: mapMarker.image,
+              title: mapMarker.title),
+        ),
+      );
 }
