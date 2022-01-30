@@ -3,9 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mapbox_flutter/settings/application_settings.dart';
 
 class AddPage extends StatefulWidget {
   const AddPage({Key? key}) : super(key: key);
@@ -18,120 +21,135 @@ class _AddPageState extends State<AddPage> {
   CollectionReference locations =
       FirebaseFirestore.instance.collection('locations');
 
-  // String image = 'image';
-  // late final LatLng myLocation;
-  Position? _currentPosition;
   File? file;
   ImagePicker image = ImagePicker();
   String url = "";
   var name;
   bool isLoading = false;
+  late final LatLng myLocation;
 
   TextEditingController nameController = TextEditingController();
   TextEditingController addressController = TextEditingController();
-  TextEditingController latitudeController = TextEditingController();
-  TextEditingController longitudeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(24),
-          child: (FirebaseAuth.instance.currentUser != null)
-              ? ((!isLoading)
-                  ? Column(
-                      children: [
-                        Text(
-                          'Lokasi Wisata',
-                          style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              color: Color(0xff504F5E)),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        MaterialButton(
-                          elevation: 2,
-                          onPressed: () {
-                            getImage();
-                          },
-                          child: Text(
-                            "Ambil Gambar",
-                            style: TextStyle(
-                                fontStyle: FontStyle.normal, color: Colors.white),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(24),
+            child: (FirebaseAuth.instance.currentUser != null)
+                ? ((!isLoading)
+                    ? Column(
+                        children: [
+                          Text(
+                            'Lokasi Wisata',
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: Color(0xff504F5E)),
                           ),
-                          color: Colors.black.withOpacity(.6),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        TextField(
-                          controller: nameController,
-                          decoration: InputDecoration(label: Text('Nama')),
-                        ),
-                        TextField(
-                          controller: addressController,
-                          decoration: InputDecoration(label: Text('Address')),
-                        ),
-                        // FlutterMap(
-                        //   options:
-                        //       MapOptions(minZoom: 5, zoom: 13, center: myLocation),
-                        //   layers: [
-                        //     TileLayerOptions(
-                        //         urlTemplate:
-                        //             'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
-                        //         additionalOptions: {
-                        //           'accessToken': MAPBOX_ACCESS_TOKEN,
-                        //           'id': MAPBOX_STYLE,
-                        //         }),
-                        //     MarkerLayerOptions(markers: [
-                        //       Marker(
-                        //           height: 50,
-                        //           width: 50,
-                        //           point: myLocation,
-                        //           builder: (_) {
-                        //             return Center(
-                        //               child: AnimatedContainer(
-                        //                 duration: const Duration(milliseconds: 400),
-                        //                 child: const Icon(
-                        //                   Icons.location_on,
-                        //                   size: 50,
-                        //                   color: Colors.red,
-                        //                 ),
-                        //               ),
-                        //             );
-                        //           })
-                        //     ]),
-                        //   ],
-                        // ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: addLocation,
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 20),
-                              primary: Colors.black.withOpacity(.6),
-                              elevation: 2),
-                          icon: Icon(Icons.add_circle),
-                          label: const Text('Tambahkan'),
-                        )
-                      ],
-                    )
-                  : Stack(
-                      alignment: FractionalOffset.center,
-                      children: <Widget>[
-                        new CircularProgressIndicator(
-                          backgroundColor: Colors.red,
-                        ),
-                      ],
-                    ))
-              : Center(
-                  child: Text('Harus Login Dahulu !'),
-                ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          MaterialButton(
+                            elevation: 2,
+                            onPressed: () {
+                              getImage();
+                            },
+                            child: Text(
+                              "Ambil Gambar",
+                              style: TextStyle(
+                                  fontStyle: FontStyle.normal,
+                                  color: Colors.white),
+                            ),
+                            color: Colors.black.withOpacity(.6),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          TextField(
+                            controller: nameController,
+                            decoration: InputDecoration(label: Text('Nama')),
+                          ),
+                          TextField(
+                            controller: addressController,
+                            decoration: InputDecoration(label: Text('Address')),
+                          ),
+                          SizedBox(height: 20,),
+                          Container(
+                            height: 250,
+                            child: FutureBuilder(
+                                future: getLocation(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: Text('LOADING MAP ....'),
+                                    );
+                                  }
+                                  print(myLocation);
+                                  return FlutterMap(
+                                    options: MapOptions(
+                                        minZoom: 5, zoom: 13, center: myLocation),
+                                    layers: [
+                                      TileLayerOptions(
+                                          urlTemplate:
+                                              'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}',
+                                          additionalOptions: {
+                                            'accessToken': MAPBOX_ACCESS_TOKEN,
+                                            'id': MAPBOX_STYLE,
+                                          }),
+                                      MarkerLayerOptions(markers: [
+                                        Marker(
+                                            height: 50,
+                                            width: 50,
+                                            point: myLocation,
+                                            builder: (_) {
+                                              return Center(
+                                                child: AnimatedContainer(
+                                                  duration: const Duration(
+                                                      milliseconds: 400),
+                                                  child: const Icon(
+                                                    Icons.location_on,
+                                                    size: 50,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                              );
+                                            })
+                                      ]),
+                                    ],
+                                  );
+                                }),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: addLocation,
+                            style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
+                                primary: Colors.black.withOpacity(.6),
+                                elevation: 2),
+                            icon: Icon(Icons.add_circle),
+                            label: const Text('Tambahkan'),
+                          )
+                        ],
+                      )
+                    : Stack(
+                        alignment: FractionalOffset.center,
+                        children: <Widget>[
+                          new CircularProgressIndicator(
+                            backgroundColor: Colors.red,
+                          ),
+                        ],
+                      ))
+                : Center(
+                    child: Text('Harus Login Dahulu !'),
+                  ),
+          ),
         ),
       ),
     );
@@ -209,12 +227,12 @@ class _AddPageState extends State<AddPage> {
       'address': addressController.text,
       'image': url,
       'likedUser': [],
-      'latitude': latitudeController.text == ''
+      'latitude': myLocation.latitude.toString() == ''
           ? '-8.084429972199272'
-          : latitudeController.text,
-      'longitude': longitudeController.text == ''
+          : myLocation.latitude.toString(),
+      'longitude': myLocation.longitude.toString() == ''
           ? '112.17616549859079'
-          : longitudeController.text,
+          : myLocation.longitude.toString(),
       'userId': FirebaseAuth.instance.currentUser!.uid.toString(),
     }).then((value) {
       print("Locations Added");
@@ -266,5 +284,17 @@ class _AddPageState extends State<AddPage> {
     }
 
     return await Geolocator.getCurrentPosition();
+  }
+
+  Future getLocation() async {
+    await _determinePosition();
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best,
+          forceAndroidLocationManager: true);
+      myLocation = LatLng(position.latitude, position.longitude);
+    } catch (e) {
+      print(e);
+    }
   }
 }

@@ -298,7 +298,5 @@ double convertToKm(double meter) {
   double roundDistanceInKM =
       double.parse((distanceInKiloMeters).toStringAsFixed(2));
 
-  print(distanceInKiloMeters);
-  print(roundDistanceInKM);
   return roundDistanceInKM;
 }

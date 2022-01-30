@@ -32,25 +32,28 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Center(
+          child: SingleChildScrollView(
           padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Profil',
-                style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    color: Color(0xff504F5E)),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              (FirebaseAuth.instance.currentUser == null)
-                  ? isNotLogin()
-                  : isLogin()
-            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Profil',
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Color(0xff504F5E)),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                (FirebaseAuth.instance.currentUser == null)
+                    ? isNotLogin()
+                    : isLogin()
+              ],
+            ),
           ),
         ),
       ),
